@@ -36,7 +36,8 @@ public class Encoder {
       byte last = 0;
       int r;
       if ((r = in.read()) != -1) {
-        b = (byte) (r - last);
+        b = (byte) (r - last); // difference between 2 bytes may be not byte but if b is byte, b + 256 == b and if x
+        // is int, (x - (byte) x) % 256 == 0. Thus we can cast the difference to byte.
         last = (byte) r;
         do {
           bOld = b;
