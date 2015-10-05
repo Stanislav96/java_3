@@ -4,36 +4,22 @@ import org.junit.Test;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Random;
 
 public class TestCode {
   @Test
-  public void TestSamePng() {
-    File fileOld = new File("NsmbMario.png");
-    File fileEnc = new File("NsmbMario.enc");
-    File fileNew = new File("1.png");
-    Encoder.encode(fileOld, fileEnc);
-    Decoder.decode(fileEnc, fileNew);
-    Assert.assertTrue(checkSame(fileOld, fileNew));
+  public void testSamePng() {
+    testSame("NsmbMario.png", "NsmbMario.enc", "1.png");
   }
 
   @Test
-  public void TestSameJpg() {
-    File fileOld = new File("1199784212.jpg");
-    File fileEnc = new File("1199784212.enc");
-    //File fileNew = new File("2.jpg");
-    File fileNew = new File("2.png");
-    Encoder.encode(fileOld, fileEnc);
-    Decoder.decode(fileEnc, fileNew);
-    Assert.assertTrue(checkSame(fileOld, fileNew));
+  public void testSameJpg() {
+    testSame("1199784212.jpg", "1199784212.enc", "2.png");
   }
 
   @Test
-  public void TestSameByteArray() {
+  public void testSameByteArray() {
     byte[] in = new byte[100];
     ByteArrayOutputStream enc = new ByteArrayOutputStream();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -44,10 +30,34 @@ public class TestCode {
     Assert.assertArrayEquals(in, out.toByteArray());
   }
 
-  private boolean checkSame(final File fileOld, final File fileNew) {
+  private void testSame(final String in, final String enc, final String out) {
+    try (final FileInputStream fisOldIn = new FileInputStream(in)) {
+      try (final FileOutputStream fisEncOut = new FileOutputStream(enc)) {
+        Encoder.encode(fisOldIn, fisEncOut);
+      } catch (final IOException e) {
+        e.printStackTrace();
+      }
+      try (final FileInputStream fisEncIn = new FileInputStream(enc);
+           final FileOutputStream fisNewOut = new FileOutputStream(out)) {
+        Decoder.decode(fisEncIn, fisNewOut);
+      } catch (final IOException e) {
+        e.printStackTrace();
+      }
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+    try (final FileInputStream fisOldIn = new FileInputStream(in);
+         final FileInputStream fisNewIn = new FileInputStream(out)) {
+      Assert.assertTrue(checkSame(fisOldIn, fisNewIn));
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private boolean checkSame(final InputStream inOld, final InputStream inNew) {
     try {
-      final BufferedImage imOld = ImageIO.read(fileOld);
-      final BufferedImage imNew = ImageIO.read(fileNew);
+      final BufferedImage imOld = ImageIO.read(inOld);
+      final BufferedImage imNew = ImageIO.read(inNew);
       final int height = imOld.getHeight();
       final int width = imOld.getWidth();
       if (height != imNew.getHeight() || width != imNew.getWidth()) {

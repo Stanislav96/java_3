@@ -1,6 +1,7 @@
 import org.apache.commons.cli.*;
 
-import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class Main {
 
@@ -28,9 +29,9 @@ public class Main {
       if (!line.hasOption("i") || !line.hasOption("o") || line.hasOption("encode") == line.hasOption("decode")) {
         new HelpFormatter().printHelp("java coder.jar", options, true);
       } else if (line.hasOption("encode")) {
-        Encoder.encode(new File(line.getOptionValue("i")), new File(line.getOptionValue("o")));
+        Encoder.encode(new FileInputStream(line.getOptionValue("i")), new FileOutputStream(line.getOptionValue("o")));
       } else {
-        Decoder.decode(new File(line.getOptionValue("i")), new File(line.getOptionValue("o")));
+        Decoder.decode(new FileInputStream(line.getOptionValue("i")), new FileOutputStream(line.getOptionValue("o")));
       }
     } catch (final Exception e) {
       e.printStackTrace();

@@ -4,23 +4,24 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 
 public class Decoder {
-  public static void decode(final File fileIn, final File fileOut) {
-    try (final ObjectInputStream in = new ObjectInputStream(new FileInputStream(fileIn))) {
-      final int height = in.readShort();
-      final int width = in.readShort();
+
+  public static void decode(final InputStream in, final OutputStream out) {
+    try (final ObjectInputStream inObj = new ObjectInputStream(in)) {
+      final int height = inObj.readShort();
+      final int width = inObj.readShort();
       ByteArrayOutputStream outR = new ByteArrayOutputStream();
       ByteArrayOutputStream outG = new ByteArrayOutputStream();
       ByteArrayOutputStream outB = new ByteArrayOutputStream();
 
-      decodeComponent(in, outR);
-      decodeComponent(in, outG);
-      decodeComponent(in, outB);
+      decodeComponent(inObj, outR);
+      decodeComponent(inObj, outG);
+      decodeComponent(inObj, outB);
 
-      final BufferedImage out = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-      unite(outR.toByteArray(), outG.toByteArray(), outB.toByteArray(), out);
+      final BufferedImage outImg = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+      unite(outR.toByteArray(), outG.toByteArray(), outB.toByteArray(), outImg);
       //final String name = fileOut.getName();
       //ImageIO.write(out, name.substring(name.lastIndexOf('.') + 1), fileOut);
-      ImageIO.write(out, "png", fileOut);
+      ImageIO.write(outImg, "png", out);
     } catch (IOException e) {
       e.printStackTrace();
     }

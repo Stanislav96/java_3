@@ -1,26 +1,22 @@
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
 public class Encoder {
-  public static void encode(final File fileIn, final File fileOut) {
-    try (final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileOut))) {
-      final BufferedImage im = ImageIO.read(fileIn);
+
+  public static void encode(final InputStream in, final OutputStream out) {
+    try (final ObjectOutputStream outObj = new ObjectOutputStream(out)) {
+      final BufferedImage im = ImageIO.read(in);
       final int height = im.getHeight();
       final int width = im.getWidth();
-      final byte[] bufR = new byte[height * width];
-      final byte[] bufG = new byte[height * width];
-      final byte[] bufB = new byte[height * width];
-      divide(im, bufR, bufG, bufB);
 
-      out.writeShort(height);
-      out.writeShort(width);
-      encodeComponent(new ByteArrayInputStream(bufR), out);
-      out.write(0);
-      encodeComponent(new ByteArrayInputStream(bufG), out);
-      out.write(0);
-      encodeComponent(new ByteArrayInputStream(bufB), out);
+      outObj.writeShort(height);
+      outObj.writeShort(width);
+      encodeComponent(new ColorInputStream(im, ColorInputStream.ColorIter.RED), outObj);
+      outObj.write(0);
+      encodeComponent(new ColorInputStream(im, ColorInputStream.ColorIter.GREEN), outObj);
+      outObj.write(0);
+      encodeComponent(new ColorInputStream(im, ColorInputStream.ColorIter.BLUE), outObj);
 
     } catch (final IOException e) {
       e.printStackTrace();
@@ -77,19 +73,6 @@ public class Encoder {
       }
     } catch (final IOException e) {
       e.printStackTrace();
-    }
-  }
-
-  private static void divide(final BufferedImage im, final byte[] bufR, final byte[] bufG, final byte[] bufB) {
-    final int height = im.getHeight();
-    final int width = im.getWidth();
-    for (int i = 0; i < height; ++i) {
-      for (int j = 0; j < width; ++j) {
-        Color c = new Color(im.getRGB(j, i));
-        bufR[i * width + j] = (byte) c.getRed();
-        bufG[i * width + j] = (byte) c.getGreen();
-        bufB[i * width + j] = (byte) c.getBlue();
-      }
     }
   }
 }
