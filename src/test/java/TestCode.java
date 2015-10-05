@@ -4,8 +4,11 @@ import org.junit.Test;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 public class TestCode {
   @Test
@@ -27,6 +30,18 @@ public class TestCode {
     Encoder.encode(fileOld, fileEnc);
     Decoder.decode(fileEnc, fileNew);
     Assert.assertTrue(checkSame(fileOld, fileNew));
+  }
+
+  @Test
+  public void TestSameByteArray() {
+    byte[] in = new byte[100];
+    ByteArrayOutputStream enc = new ByteArrayOutputStream();
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    Random rand = new Random(System.currentTimeMillis());
+    rand.nextBytes(in);
+    Encoder.encodeComponent(new ByteArrayInputStream(in), enc);
+    Decoder.decodeComponent(new ByteArrayInputStream(enc.toByteArray()), out);
+    Assert.assertArrayEquals(in, out.toByteArray());
   }
 
   private boolean checkSame(final File fileOld, final File fileNew) {
@@ -51,7 +66,6 @@ public class TestCode {
       }
     } catch (final IOException e) {
       e.printStackTrace();
-      System.exit(1);
     }
     return true;
   }

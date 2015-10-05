@@ -22,7 +22,7 @@ public class Main {
     option.setArgs(0);
     option.setArgName("decode");
     options.addOption(option);
-    final CommandLineParser parser = new PosixParser();
+    final CommandLineParser parser = new DefaultParser();
     try {
       final CommandLine line = parser.parse(options, args);
       if (!line.hasOption("i") || !line.hasOption("o") || line.hasOption("encode") == line.hasOption("decode")) {
