@@ -10,12 +10,12 @@ import java.util.Random;
 public class TestCode {
   @Test
   public void testSamePng() {
-    testSame("NsmbMario.png", "NsmbMario.enc", "1.png");
+    testSame(getClass().getClassLoader().getResource("NsmbMario.png").getFile(), "NsmbMario.enc", "1.png");
   }
 
   @Test
   public void testSameJpg() {
-    testSame("1199784212.jpg", "1199784212.enc", "2.png");
+    testSame(getClass().getClassLoader().getResource("1199784212.jpg").getFile(), "1199784212.enc", "2.png");
   }
 
   @Test

@@ -9,16 +9,12 @@ public class Decoder {
     try (final ObjectInputStream inObj = new ObjectInputStream(in)) {
       final int height = inObj.readShort();
       final int width = inObj.readShort();
-      ByteArrayOutputStream outR = new ByteArrayOutputStream();
-      ByteArrayOutputStream outG = new ByteArrayOutputStream();
-      ByteArrayOutputStream outB = new ByteArrayOutputStream();
-
-      decodeComponent(inObj, outR);
-      decodeComponent(inObj, outG);
-      decodeComponent(inObj, outB);
-
       final BufferedImage outImg = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-      unite(outR.toByteArray(), outG.toByteArray(), outB.toByteArray(), outImg);
+      final ColorOutputStream outCol = new ColorOutputStream(outImg);
+
+      for (int i = 0; i < 3; i++) {
+        decodeComponent(inObj, outCol);
+      }
       //final String name = fileOut.getName();
       //ImageIO.write(out, name.substring(name.lastIndexOf('.') + 1), fileOut);
       ImageIO.write(outImg, "png", out);
@@ -28,6 +24,19 @@ public class Decoder {
   }
 
   public static void decodeComponent(final InputStream in, final OutputStream out) {
+    int r;
+    Boolean[] shouldExitOnZero = {false};
+    OutputStream outDec = new DecodeRLEOutputStream(new DecodeDeltaOutputStream(out), shouldExitOnZero);
+    try {
+      do {
+        r = in.read();
+        outDec.write(r);
+      } while (r != -1 && (r != 0 || !shouldExitOnZero[0]));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+  /*public static void decodeComponent(final InputStream in, final OutputStream out) {
     try {
       byte num;
       int r;
@@ -72,5 +81,5 @@ public class Decoder {
                                    (bufB[i * width + j] + 256) % 256).getRGB());
       }
     }
-  }
+  }*/
 }

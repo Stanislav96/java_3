@@ -24,6 +24,18 @@ public class Encoder {
   }
 
   public static void encodeComponent(final InputStream in, final OutputStream out) {
+    int r;
+    OutputStream outEnc = new EncodeDeltaOutputStream(new EncodeRLEOutputStream(out));
+    try {
+      do {
+        r = in.read();
+        outEnc.write(r);
+      } while (r != -1);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+  /*public static void encodeComponent(final InputStream in, final OutputStream out) {
     try {
       byte bOld, b;
       int sizeBuf = 0;
@@ -74,5 +86,5 @@ public class Encoder {
     } catch (final IOException e) {
       e.printStackTrace();
     }
-  }
+  }*/
 }
